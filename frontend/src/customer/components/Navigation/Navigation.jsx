@@ -1,4 +1,4 @@
-import { Fragment, useState } from "react";
+import { Fragment, useEffect, useState } from "react";
 import { Dialog, Popover, Tab, Transition } from "@headlessui/react";
 import {
     Bars3Icon,
@@ -8,7 +8,10 @@ import {
 } from "@heroicons/react/24/outline";
 import { Avatar, Button, Menu, MenuItem } from "@mui/material";
 import { deepPurple } from "@mui/material/colors";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
+import AuthModal from "../../auth/AuthModal";
+import { useDispatch, useSelector } from "react-redux";
+import { getUser, logout } from "../../../state/auth/Action";
 
 const navigation = {
     categories: [
@@ -140,13 +143,19 @@ function classNames(...classes) {
 }
 
 export default function Navigation() {
+
+    const randomColor = Math.floor(Math.random() * 16777215).toString(16);
+
     const [open, setOpen] = useState(false);
     const navigate = useNavigate()
+    const { auth } = useSelector(store => store)
+    const dispatch = useDispatch()
 
     const [openAuthModal, setOpenAuthModal] = useState(false);
     const [anchorEl, setAnchorEl] = useState(null)
     const openUserMenu = Boolean(anchorEl);
     const jwt = localStorage.getItem("jwt");
+    const location = useLocation()
 
     const handleUserClick = (event) => {
         setAnchorEl(event.currentTarget);
@@ -168,6 +177,26 @@ export default function Navigation() {
         close();
     }
 
+    useEffect(() => {
+        if (jwt) {
+            dispatch(getUser(jwt))
+        }
+    }, [jwt, auth.jwt])
+    useEffect(() => {
+
+        if (auth.user) {
+            handleClose()
+        }
+        if (location.pathname === "/login" || location.pathname === "/register") {
+            navigate(-1)
+        }
+
+    }, [auth.user])
+
+    const handleLogout = () => {
+        dispatch(logout())
+        handleCloseUserMenu()
+    }
     return (
         <div className="bg-white pb-10">
             {/* Mobile menu */}
@@ -510,7 +539,7 @@ export default function Navigation() {
 
                             <div className="ml-auto flex items-center">
                                 <div className="hidden lg:flex lg:flex-1 lg:items-center lg:justify-end lg:space-x-6">
-                                    {true ? (
+                                    {auth.user?.first_name ? (
                                         <div>
                                             <Avatar
                                                 className="text-white"
@@ -519,11 +548,11 @@ export default function Navigation() {
                                                 aria-haspopup="true"
                                                 aria-expanded={open ? "true" : undefined}
                                                 sx={{
-                                                    bgcolor: deepPurple[500],
+                                                    bgcolor: "#" + randomColor,
                                                     color: "white",
                                                     cursor: "pointer"
                                                 }}>
-                                                R
+                                                {auth.user?.first_name[0].toUpperCase()}
                                             </Avatar>
 
                                             <Menu id="basic-menu"
@@ -539,7 +568,7 @@ export default function Navigation() {
                                                 <MenuItem onClick={() => navigate("/account/order")}>
                                                     My orders
                                                 </MenuItem>
-                                                <MenuItem>Logout</MenuItem>
+                                                <MenuItem onClick={handleLogout}>Logout</MenuItem>
                                             </Menu>
                                         </div>
                                     ) : (
@@ -587,6 +616,7 @@ export default function Navigation() {
                     </div>
                 </nav>
             </header>
+            <AuthModal handleClose={handleClose} open={openAuthModal} />
         </div>
     );
 }

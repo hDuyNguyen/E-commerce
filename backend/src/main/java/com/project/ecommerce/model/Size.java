@@ -1,28 +1,19 @@
-package com.project.ecommerce.model;
+package com.project.mdyshop.model;
 
-import jakarta.persistence.Embeddable;
-import jakarta.persistence.Entity;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
-@Embeddable
+@Getter
+@Setter
+@AllArgsConstructor
+@NoArgsConstructor
 public class Size {
+
     private String name;
-    private String quantity;
 
-    public Size() {}
+    private long quantity;
 
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getQuantity() {
-        return quantity;
-    }
-
-    public void setQuantity(String quantity) {
-        this.quantity = quantity;
-    }
+    private long price;
 }

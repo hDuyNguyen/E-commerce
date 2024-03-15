@@ -1,70 +1,60 @@
-package com.project.ecommerce.controller;
+package com.project.mdyshop.controller;
 
-import com.project.ecommerce.exeption.OrderException;
-import com.project.ecommerce.exeption.ProductException;
-import com.project.ecommerce.model.Product;
-import com.project.ecommerce.request.CreateProductRequest;
-import com.project.ecommerce.response.ApiResponse;
-import com.project.ecommerce.serivce.ProductService;
+import com.project.mdyshop.dto.request.UpdateProductStatusRequest;
+import com.project.mdyshop.dto.response.ApiResponse;
+import com.project.mdyshop.exception.ProductException;
+import com.project.mdyshop.model.Product;
+import com.project.mdyshop.service.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
 @RequestMapping("/api/admin/product")
+@PreAuthorize("hasRole('ADMIN')")
 public class AdminProductController {
 
     @Autowired
     ProductService productService;
 
-    @PostMapping("/")
-    public ResponseEntity<Product> createProduct(@RequestBody CreateProductRequest req) {
+    @PutMapping("/confirm/accepted/{productId}")
+    public ResponseEntity<ApiResponse> confirmProduct(@PathVariable Long productId) throws ProductException {
+        productService.confirmProduct(productId);
 
-        Product product = productService.createProduct(req);
+        ApiResponse response = new ApiResponse();
+        response.setMessage("Accept Successfully");
+        response.setStatus(true);
 
-        return new ResponseEntity<>(product, HttpStatus.CREATED);
+        return new ResponseEntity<>(response, HttpStatus.ACCEPTED);
     }
 
-    @DeleteMapping("/{productId}/delete")
-    public ResponseEntity<ApiResponse> deleteProduct(@PathVariable Long productId) throws ProductException {
-        productService.deleteProduct(productId);
+    @PutMapping("/confirm/denied/{productId}")
+    public ResponseEntity<ApiResponse> deniedProduct(@PathVariable Long productId) throws ProductException {
+        productService.deniedProduct(productId);
 
-        ApiResponse res = new ApiResponse();
-        res.setMessage("Product deleted successfully");
-        res.setStatus(true);
+        ApiResponse response = new ApiResponse();
+        response.setMessage("Denied Successfully");
+        response.setStatus(true);
 
-        return new ResponseEntity<>(res, HttpStatus.OK);
+        return new ResponseEntity<>(response, HttpStatus.ACCEPTED);
     }
 
-    @GetMapping("/all")
-    public ResponseEntity<List<Product>> findAllProduct() {
-        List<Product> products = productService.findALlProduct();
+    @GetMapping("/")
+    public ResponseEntity<List<Product>> getAllProduct() {
+        List<Product> products = productService.getAllProduct();
 
         return new ResponseEntity<>(products, HttpStatus.OK);
     }
 
-    @PutMapping("/{productId}/update")
-    public ResponseEntity<Product> updateProduct(@RequestBody Product req ,@PathVariable Long productId) throws ProductException {
+    @PutMapping("/{productId}")
+    public ResponseEntity<Product> updateStatusProduct(@RequestBody UpdateProductStatusRequest request,
+                                                       @PathVariable Long productId) {
+        Product product = productService.updateProductStatus(request, productId);
 
-        Product product = productService.updateProduct(productId, req);
-
-        return new ResponseEntity<>(product, HttpStatus.CREATED);
-    }
-
-    @PostMapping("/create")
-    public ResponseEntity<ApiResponse> createMultipleProduct(@RequestBody CreateProductRequest[] requests) {
-
-        for (CreateProductRequest product:requests) {
-            productService.createProduct(product);
-        }
-
-        ApiResponse response = new ApiResponse();
-        response.setMessage("Product create successfully");
-        response.setStatus(true);
-
-        return new ResponseEntity<>(response, HttpStatus.CREATED);
+        return new ResponseEntity<>(product, HttpStatus.OK);
     }
 }

@@ -1,115 +1,35 @@
-package com.project.ecommerce.model;
+package com.project.mdyshop.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
-
-import java.time.LocalDateTime;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Entity
+@Table(name = "order_item")
+@NoArgsConstructor
+@AllArgsConstructor
+@Getter
+@Setter
 public class OrderItem {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @JsonIgnore
     @ManyToOne
-    private Orders orders;
-
-    @ManyToOne
+    @JoinColumn(name = "product_id")
     private Product product;
 
+    @ManyToOne
+    @JsonIgnore
+    private Order order;
+
     private String size;
-    private int quantity;
-    private Integer price;
-    private Integer discountedPrice;
-    private Long userId;
-    private LocalDateTime deliveryDate;
 
-     public OrderItem() {}
+    private Long quantity;
 
-    public OrderItem(Long id, Orders orders, Product product, String size, int quantity, Integer price,
-                     Integer discountedPrice, Long userId, LocalDateTime deliveryDate) {
-        this.id = id;
-        this.orders = orders;
-        this.product = product;
-        this.size = size;
-        this.quantity = quantity;
-        this.price = price;
-        this.discountedPrice = discountedPrice;
-        this.userId = userId;
-        this.deliveryDate = deliveryDate;
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public Orders getOrder() {
-        return orders;
-    }
-
-    public void setOrder(Orders orders) {
-        this.orders = orders;
-    }
-
-    public Product getProduct() {
-        return product;
-    }
-
-    public void setProduct(Product product) {
-        this.product = product;
-    }
-
-    public String getSize() {
-        return size;
-    }
-
-    public void setSize(String size) {
-        this.size = size;
-    }
-
-    public int getQuantity() {
-        return quantity;
-    }
-
-    public void setQuantity(int quantity) {
-        this.quantity = quantity;
-    }
-
-    public Integer getPrice() {
-        return price;
-    }
-
-    public void setPrice(Integer price) {
-        this.price = price;
-    }
-
-    public Integer getDiscountedPrice() {
-        return discountedPrice;
-    }
-
-    public void setDiscountedPrice(Integer discountedPrice) {
-        this.discountedPrice = discountedPrice;
-    }
-
-    public Long getUserId() {
-        return userId;
-    }
-
-    public void setUserId(Long userId) {
-        this.userId = userId;
-    }
-
-    public LocalDateTime getDeliveryDate() {
-        return deliveryDate;
-    }
-
-    public void setDeliveryDate(LocalDateTime deliveryDate) {
-        this.deliveryDate = deliveryDate;
-    }
+    private Long price;
 }
